@@ -1,0 +1,1 @@
+clang --analyze -fdiagnostics-print-source-range-info -fno-caret-diagnostics -fno-color-diagnostics -fno-diagnostics-fixit-info main.cpp

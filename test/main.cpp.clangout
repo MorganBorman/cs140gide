@@ -1,0 +1,4 @@
+main.cpp:7:8:{7:3-7:8}: error: no member named 'cot' in namespace 'std'; did you mean 'cout'?
+In file included from main.cpp:3:
+/usr/include/c++/4.4/iostream:58:18: note: 'cout' declared here
+main.cpp:8:3: error: use of undeclared identifier 'returfn'; did you mean 'return'?
