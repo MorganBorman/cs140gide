@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>welcome.html</file>
+    </qresource>
+    <qresource prefix="/icons/theme">
+        <file alias="run">icons/theme/run.png</file>
+        <file alias="save-as">icons/theme/save-as.svg</file>
+        <file alias="save">icons/theme/save.svg</file>
+        <file alias="select-all">icons/theme/select-all.svg</file>
+        <file alias="undo">icons/theme/undo.svg</file>
+        <file alias="about">icons/theme/about.svg</file>
+        <file alias="build">icons/theme/build.svg</file>
+        <file alias="copy">icons/theme/copy.svg</file>
+        <file alias="cut">icons/theme/cut.svg</file>
+        <file alias="find-replace">icons/theme/find-replace.svg</file>
+        <file alias="goto">icons/theme/goto.svg</file>
+        <file alias="help">icons/theme/help.svg</file>
+        <file alias="new-file">icons/theme/new-file.svg</file>
+        <file alias="new-project">icons/theme/new-project.svg</file>
+        <file alias="open-project">icons/theme/open-project.svg</file>
+        <file alias="paste">icons/theme/paste.svg</file>
+        <file alias="quit">icons/theme/quit.svg</file>
+        <file alias="redo">icons/theme/redo.svg</file>
+        <file alias="reformat">icons/theme/reformat.svg</file>
+        <file alias="close">icons/theme/close.svg</file>
+    </qresource>
+</RCC>

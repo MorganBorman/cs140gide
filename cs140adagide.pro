@@ -9,20 +9,24 @@ QT       += core gui
 TARGET = cs140adagide
 TEMPLATE = app
 
-
 SOURCES += \
-    mainwindow.py \
+    main.py \
+    MainWindow.py \
+    Controller.py \
+    ProjectModel.py \
     SourceEditor.py
 
 HEADERS  +=
 
 FORMS    += \
-    mainwindow.ui
+    resources/MainWindow.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
-    cs140adagide.qrc
+    resources/cs140adagide.qrc
+
+
 
 
 

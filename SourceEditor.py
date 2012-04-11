@@ -20,9 +20,9 @@ class SourceEditor(QsciScintilla):
     def __init__(self, parent=None):
         super(SourceEditor, self).__init__(parent)
 
-	for name in dir(self):
+        #for name in dir(self):
 	#	if "line" in name.lower():
-		print name
+        #	print name
 			
 	#if not "fillIndicatorRange" in dir(self):
 	#	self.fillIndicatorRange = 
