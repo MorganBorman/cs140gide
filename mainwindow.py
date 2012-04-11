@@ -17,11 +17,14 @@ class MainWindow(QtGui.QMainWindow):
         # self.program_output
         # self.build_output
         # self.statusbar
-
-        self.editors = []
-
-        #with open("test/main.cpp") as source:
-        #    self.example_editor.setText(source.read())
+        
+        self.new_file_dialog = QtGui.QInputDialog(self)
+        self.new_file_dialog.setOkButtonText(QtCore.QString("Create"))
+        self.new_file_dialog.setLabelText(QtCore.QString("Enter the filename:"))
+        self.new_file_dialog.setModal(True)
+        
+        self.new_file_dialog.accepted.connect(self.on_new_file_accepted)
+        self.new_file_dialog.rejected.connect(self.on_new_file_rejected)
 
         #self.example_editor.fillIndicatorRange(6, 7, 6, 10, 0)
         #self.example_editor.fillIndicatorRange(7, 2, 7, 9, 0)
@@ -46,10 +49,47 @@ class MainWindow(QtGui.QMainWindow):
 
         self.editor_tab_widget.addTab(example_editor, QtCore.QString(tabname))
 
-        self.editors.append(example_editor)
-
     def on_new_file(self):
-        print "another one clicked on new file."
+        self.new_file_dialog.open()
+        
+    def on_new_file_accepted(self):
+    	print "new file accepted"
+    	
+    def on_new_file_rejected(self):
+    	print "new file rejected"
+        
+    def on_cut(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.cut()
+    	
+    def on_copy(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.copy()
+    	
+    def on_paste(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.paste()
+    	
+    def on_select_all(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.selectAll(True)
+    	
+    def on_undo(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.undo()
+    	
+    def on_redo(self):
+    	current_editor = self.editor_tab_widget.currentWidget()
+    	if current_editor is not None:
+    		current_editor.redo()
+    		
+    def on_reformat(self):
+    	print "Someone pressed reformat; The fool."
 
 app = QtGui.QApplication(sys.argv)
 window = MainWindow()
