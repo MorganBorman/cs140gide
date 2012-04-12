@@ -4,8 +4,18 @@ class NewFileDialog(QtGui.QInputDialog):
     def __init__(self, parent):
         QtGui.QInputDialog.__init__(self, parent)
         
+        self.setInputMode(QtGui.QInputDialog.TextInput)
         self.setOkButtonText(QtCore.QString("Create"))
         self.setLabelText(QtCore.QString("Enter the filename:"))
+        self.setModal(True)
+        
+class GotoLineDialog(QtGui.QInputDialog):
+    def __init__(self, parent):
+        QtGui.QInputDialog.__init__(self, parent)
+        
+        self.setInputMode(QtGui.QInputDialog.IntInput)
+        self.setOkButtonText(QtCore.QString("Goto"))
+        self.setLabelText(QtCore.QString("Enter the line number:"))
         self.setModal(True)
         
 class OpenProjectDialog(QtGui.QFileDialog):
@@ -48,9 +58,14 @@ class UnsavedFilesDialog(QtGui.QDialog):
         # Set up the user interface from .ui file
         uic.loadUi("resources/UnsavedFilesDialog.ui", self)
         
+        self.unsaved_file_table.itemChanged.connect(self.on_table_item_changed)
+        
     def get_response(self):
         "Get which of the files the user chose to save."
         file_list = []
+        
+        if self.unsaved_file_table.rowCount() == 0:
+            return []
         
         for row_index in range(self.unsaved_file_table.rowCount()):
             
@@ -67,4 +82,10 @@ class UnsavedFilesDialog(QtGui.QDialog):
             item = QtGui.QTableWidgetItem(QtCore.QString(file_list[row_index]))
             item.setCheckState(True)
             self.unsaved_file_table.setItem(row_index, 0, item)
+            
+    def on_table_item_changed(self, item):
+        if len(self.get_response()) > 0:
+            self.save_and_close.setText("Save Selected and Close")
+        else:
+            self.save_and_close.setText("Close")
     

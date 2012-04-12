@@ -29,9 +29,21 @@ class Controller(QtCore.QObject):
         self.view_window.new_project_dialog.fileSelected.connect(self.on_new_project_accepted)
         self.view_window.open_project_dialog.fileSelected.connect(self.on_open_project_accepted)
         
+        self.view_window.goto_line_dialog.accepted.connect(self.on_goto_line_accepted)
+        
     #######################################################
     ###            triggered action handlers            ###
     #######################################################
+        
+    #new project dialog
+    
+    def on_new_project_accepted(self, filename):
+        self.project_model.new_project(str(filename))
+        
+    #open project dialog
+   
+    def on_open_project_accepted(self, filename):
+        self.project_model.open(str(filename))
    
     #new file dialog
    
@@ -39,13 +51,16 @@ class Controller(QtCore.QObject):
         filename = self.view_window.new_file_dialog.textValue()
         self.project_model.new(str(filename))
         
-    #open project dialog
-    
-    def on_new_project_accepted(self, filename):
-        self.project_model.new_project(str(filename))
-   
-    def on_open_project_accepted(self, filename):
-        self.project_model.open(str(filename))
+    def on_goto_line_accepted(self):
+        line = self.view_window.goto_line_dialog.intValue() - 1
+        
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            
+            if line > current_editor_widget.lines():
+                return
+            
+            current_editor_widget.setCursorPosition(line, 0)
    
     #file menu
         
@@ -117,7 +132,11 @@ class Controller(QtCore.QObject):
         print "find replace triggered."
         
     def on_action_goto_line(self):
-        print "goto line triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            self.view_window.goto_line_dialog.setIntRange(0, current_editor_widget.lines())
+        
+            self.view_window.goto_line_dialog.open()
             
     def on_action_reformat(self):
         print "reformat triggered."
@@ -128,7 +147,8 @@ class Controller(QtCore.QObject):
         print "build triggered."
         
     def on_action_run(self):
-        print "run triggered."
+        arguments = str(self.view_window.program_arguments.text())
+        print "run triggered. Arguments line '%s'" % arguments
         
     #help menu
     

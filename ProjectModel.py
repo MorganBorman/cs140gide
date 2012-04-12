@@ -20,7 +20,9 @@ class ProjectFile(QtCore.QObject):
         self.filehandle.open(QtCore.QIODevice.ReadWrite)
         self.editor = SourceEditor()
         
-        self.editor.setText(str(self.filehandle.readAll()))
+        self.editor.read(self.filehandle)
+        
+        #self.editor.setText(str(self.filehandle.readAll()))
         self.editor.setModified(False)
         
         self.editor.modificationChanged.connect(self.on_modification_changed)

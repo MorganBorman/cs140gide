@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from PyQt4 import QtCore, QtGui, uic
-from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog
+from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, project_model):
@@ -50,6 +50,8 @@ class MainWindow(QtGui.QMainWindow):
         self.confirm_delete_dialog = ConfirmDeleteDialog(self)
         
         self.unsaved_files_dialog = UnsavedFilesDialog(self)
+        
+        self.goto_line_dialog = GotoLineDialog(self)
         
     def closeEvent(self, event):
         #Trigger the close project event to make sure the project gets closed cleanly
