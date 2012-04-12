@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>welcome.html</file>
+        <file>new_project.html</file>
     </qresource>
     <qresource prefix="/icons/theme">
         <file alias="run">icons/theme/run.png</file>
@@ -23,5 +24,6 @@
         <file alias="redo">icons/theme/redo.svg</file>
         <file alias="reformat">icons/theme/reformat.svg</file>
         <file alias="close">icons/theme/close.svg</file>
+        <file alias="delete">icons/theme/delete.svg</file>
     </qresource>
 </RCC>

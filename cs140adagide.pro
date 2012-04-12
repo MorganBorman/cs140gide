@@ -19,12 +19,14 @@ SOURCES += \
 HEADERS  +=
 
 FORMS    += \
-    resources/MainWindow.ui
+    resources/MainWindow.ui \
+    resources/UnsavedFilesDialog.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
     resources/cs140adagide.qrc
+
 
 
 

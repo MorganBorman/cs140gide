@@ -1,6 +1,6 @@
 
 from PyQt4 import QtCore, QtGui
-import sys
+import sys, time
 
 class Controller(QtCore.QObject):
     def __init__(self, project_model, view_window):
@@ -9,14 +9,20 @@ class Controller(QtCore.QObject):
         self.view_window = view_window
         self.project_model = project_model
         
+        missing_slots = False
+        
         #connect all the actions to slots here
-        try:
-            for actionName, actionObject in self.view_window.actions_dict.items():
-                slot_name = "on_" + actionName
+        for actionObject in self.view_window.actions():
+            try:
+                slot_name = "on_" + str(actionObject.objectName())
                 slot = self.__getattribute__(slot_name)
                 actionObject.triggered.connect(slot)
-        except AttributeError:
-            print "A slot called '%s' should have been a member function of Controller but it was not found. Exiting..." % slot_name
+            except AttributeError:
+                print "A slot called '%s' should have been a member function of Controller but it was not found." % slot_name
+                missing_slots = True
+            
+        if missing_slots:
+            print "Missing Controller slots encountered. Exiting..."
             sys.exit(1)
             
         self.view_window.new_file_dialog.accepted.connect(self.on_new_file_accepted)
@@ -31,15 +37,15 @@ class Controller(QtCore.QObject):
    
     def on_new_file_accepted(self):
         filename = self.view_window.new_file_dialog.textValue()
-        print "New file accepted:", filename
+        self.project_model.new(str(filename))
         
     #open project dialog
     
     def on_new_project_accepted(self, filename):
-        print "new project accepted:", filename
+        self.project_model.new_project(str(filename))
    
     def on_open_project_accepted(self, filename):
-        print "open project accepted:", filename
+        self.project_model.open(str(filename))
    
     #file menu
         
@@ -51,38 +57,61 @@ class Controller(QtCore.QObject):
    
     def on_action_new_file(self):
         self.view_window.new_file_dialog.open()
+        
+    def on_action_delete_file(self):
+        value = self.view_window.confirm_delete_dialog.execute()
+        if value:
+            current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+            if current_editor_widget is not None:
+                self.project_model.delete(current_editor_widget)
     
     def on_action_save(self):
-        print "save triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            self.project_model.save(current_editor_widget)
         
     def on_action_save_all(self):
-        print "save all triggered."
+        self.project_model.save_all()
         
     def on_action_close_project(self):
         self.project_model.close()
         
     def on_action_quit(self):
-        print "quit triggered."
+        #print "quit triggered."
+        #this is like the only triggered action that the Controller doesn't need to know about directly
+        pass
         
     #edit menu
         
     def on_action_undo(self):
-        print "undo triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.undo()
         
     def on_action_redo(self):
-        print "redo triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.redo()
         
     def on_action_cut(self):
-        print "cut triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.cut()
         
     def on_action_copy(self):
-        print "copy triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.copy()
         
     def on_action_paste(self):
-        print "paste triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.paste()
         
     def on_action_select_all(self):
-        print "select all triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.selectAll()
         
     def on_action_find_replace(self):
         print "find replace triggered."

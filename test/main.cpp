@@ -4,6 +4,6 @@
 
 int main()
 {
-    std::cot << "Hello World!" << std::endl;
-    returfn 0;
+    std::cout << "Hello World!" << std::endl;
+    return 0;
 }

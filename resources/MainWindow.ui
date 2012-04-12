@@ -14,8 +14,8 @@
    <string>cs140adagide</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/resources/icons/theme/run</normaloff>:/resources/icons/theme/run</iconset>
+   <iconset resource="cs140adagide.qrc">
+    <normaloff>:/icons/theme/run</normaloff>:/icons/theme/run</iconset>
   </property>
   <property name="iconSize">
    <size>
@@ -25,6 +25,9 @@
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonTextBesideIcon</enum>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -66,7 +69,7 @@
          <enum>QTabWidget::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="documentMode">
          <bool>true</bool>
@@ -74,16 +77,35 @@
         <property name="movable">
          <bool>true</bool>
         </property>
-        <widget class="QWidget" name="tab">
+        <widget class="QWidget" name="welcome_tab">
          <attribute name="title">
           <string>Welcome</string>
          </attribute>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QTextBrowser" name="textBrowser">
+           <widget class="QTextBrowser" name="welcome_widget">
             <property name="source">
              <url>
               <string>qrc:/welcome.html</string>
+             </url>
+            </property>
+            <property name="openLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="new_project_tab">
+         <attribute name="title">
+          <string>New Project</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QTextBrowser" name="new_project_widget">
+            <property name="source">
+             <url>
+              <string>qrc:/new_project.html</string>
              </url>
             </property>
             <property name="openLinks">
@@ -190,6 +212,7 @@
     <addaction name="action_open_project"/>
     <addaction name="separator"/>
     <addaction name="action_new_file"/>
+    <addaction name="action_delete_file"/>
     <addaction name="separator"/>
     <addaction name="action_save"/>
     <addaction name="action_save_all"/>
@@ -233,7 +256,7 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
+  <widget class="QToolBar" name="toolbar">
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -242,6 +265,9 @@
    </property>
    <property name="movable">
     <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonIconOnly</enum>
@@ -477,6 +503,15 @@
     <string>New Project</string>
    </property>
   </action>
+  <action name="action_delete_file">
+   <property name="icon">
+    <iconset resource="cs140adagide.qrc">
+     <normaloff>:/icons/theme/delete</normaloff>:/icons/theme/delete</iconset>
+   </property>
+   <property name="text">
+    <string>Delete File</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>editor_tab_widget</tabstop>
@@ -486,7 +521,24 @@
  <resources>
   <include location="cs140adagide.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_quit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <designerdata>
   <property name="gridDeltaX">
    <number>10</number>
