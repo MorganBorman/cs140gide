@@ -4,7 +4,6 @@
         <file>new_project.html</file>
     </qresource>
     <qresource prefix="/icons/theme">
-        <file alias="run">icons/theme/run.png</file>
         <file alias="save-as">icons/theme/save-as.svg</file>
         <file alias="save">icons/theme/save.svg</file>
         <file alias="select-all">icons/theme/select-all.svg</file>
@@ -25,5 +24,6 @@
         <file alias="reformat">icons/theme/reformat.svg</file>
         <file alias="close">icons/theme/close.svg</file>
         <file alias="delete">icons/theme/delete.svg</file>
+        <file alias="run">icons/theme/run.svg</file>
     </qresource>
 </RCC>

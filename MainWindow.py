@@ -104,6 +104,9 @@ class MainWindow(QtGui.QMainWindow):
     def on_model_file_closed(self, editor):
         index = self.editor_tab_widget.indexOf(editor)
         self.editor_tab_widget.removeTab(index)
+        
+        if len(self.editor_tab_widget) == 0:
+            self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
             
     def on_model_file_modified_state(self, editor, filename, value):
         index = self.editor_tab_widget.indexOf(editor)
