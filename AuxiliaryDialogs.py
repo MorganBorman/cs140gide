@@ -69,7 +69,9 @@ class UnsavedFilesDialog(QtGui.QDialog):
         
         for row_index in range(self.unsaved_file_table.rowCount()):
             
-            if self.unsaved_file_table.item(row_index, 0).checkState() > 0:
+            row_widget_item = self.unsaved_file_table.item(row_index, 0)
+            
+            if (row_widget_item is not None) and (row_widget_item.checkState() > 0):
                 file_list.append(str(self.unsaved_file_table.item(row_index, 0).text()))
             
         return file_list
