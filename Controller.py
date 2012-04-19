@@ -148,6 +148,7 @@ class Controller(QtCore.QObject):
         
     def on_action_run(self):
         arguments = str(self.view_window.program_arguments.text())
+        self.view_window.program_output.run("./inout", arguments)
         print "run triggered. Arguments line '%s'" % arguments
         
     #help menu

@@ -2,6 +2,7 @@
 
 from PyQt4 import QtCore, QtGui, uic
 from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog
+from ConsoleWidget import Console
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, project_model):
@@ -25,6 +26,12 @@ class MainWindow(QtGui.QMainWindow):
         # self.program_output
         # self.build_output
         # self.statusbar
+        
+        #self.program_output.destroy()
+        #self.verticalLayout.removeWidget(self.program_output)
+        
+        self.program_output = Console()
+        self.verticalLayout.addWidget(self.program_output)
         
         #disable these context menus to stop the toolbar being closed
         self.toolbar.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
@@ -66,7 +73,7 @@ class MainWindow(QtGui.QMainWindow):
     def set_project_actions_enabled(self, value):
         "Enable or disable actions that require a project to be open."
         
-        not_toggled_actions = [ 'action_new_project', 'action_open_project', 'action_quit', 'action_about' ]
+        not_toggled_actions = [ 'action_new_project', 'action_open_project', 'action_quit', 'action_about', 'action_run' ]
         
         for actionObject in self.actions():
             if not actionObject.objectName() in not_toggled_actions:
