@@ -1,6 +1,6 @@
 
 from PyQt4 import QtCore, QtGui
-import sys, time
+import sys
 
 class Controller(QtCore.QObject):
     def __init__(self, project_model, view_window):
@@ -154,5 +154,5 @@ class Controller(QtCore.QObject):
     #help menu
     
     def on_action_about(self):
-        print "about triggered."
+        self.view_window.about_dialog.open()
         

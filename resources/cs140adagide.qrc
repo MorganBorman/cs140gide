@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>welcome.html</file>
         <file>new_project.html</file>
+        <file>about.html</file>
     </qresource>
     <qresource prefix="/icons/theme">
         <file alias="save-as">icons/theme/save-as.svg</file>

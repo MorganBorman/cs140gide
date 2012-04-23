@@ -20,7 +20,8 @@ HEADERS  +=
 
 FORMS    += \
     resources/MainWindow.ui \
-    resources/UnsavedFilesDialog.ui
+    resources/UnsavedFilesDialog.ui \
+    resources/AboutDialog.ui
 
 OTHER_FILES +=
 

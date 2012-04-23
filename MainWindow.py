@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from PyQt4 import QtCore, QtGui, uic
-from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog
+from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog, AboutDialog
 from ConsoleWidget import Console
 
 class MainWindow(QtGui.QMainWindow):
@@ -26,9 +26,6 @@ class MainWindow(QtGui.QMainWindow):
         # self.program_output
         # self.build_output
         # self.statusbar
-        
-        #self.program_output.destroy()
-        #self.verticalLayout.removeWidget(self.program_output)
         
         self.program_output = Console()
         self.verticalLayout.addWidget(self.program_output)
@@ -60,7 +57,11 @@ class MainWindow(QtGui.QMainWindow):
         
         self.goto_line_dialog = GotoLineDialog(self)
         
+        self.about_dialog = AboutDialog(self)
+        
     def closeEvent(self, event):
+    	"Intercept the close event and check that there isn't anything we need to do first."
+    	
         #Trigger the close project event to make sure the project gets closed cleanly
         self.action_close_project.trigger()
         
@@ -94,12 +95,20 @@ class MainWindow(QtGui.QMainWindow):
         
         if not cancelled:
             files_to_save = self.unsaved_files_dialog.get_response()
+            print "Files to save:", files_to_save
             for filename in files_to_save:
                 self.project_model.save(filename)
             
             self.project_model.force_close()
 
     def on_model_project_opened_state(self, value):
+    	"""The current state of whether a project is opened has changed.
+    	
+    	Enable or disable the project dependent actions.
+    	
+    	If opening a project with no files then show the new project help info.
+    	If closing a project show the welcome info.
+    	"""
         self.set_project_actions_enabled(value)
         if value:
             index = self.editor_tab_widget.indexOf(self.welcome_widget)
@@ -111,6 +120,7 @@ class MainWindow(QtGui.QMainWindow):
             self.editor_tab_widget.addTab(self.welcome_widget, "Welcome")
             
     def on_model_file_closed(self, editor):
+    	"A model file has closed so close the editor tab associated with it."
         index = self.editor_tab_widget.indexOf(editor)
         self.editor_tab_widget.removeTab(index)
         
@@ -118,6 +128,7 @@ class MainWindow(QtGui.QMainWindow):
             self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
             
     def on_model_file_modified_state(self, editor, filename, value):
+    	"Set whether or not a file tab indicates that the specified file is modified or not."
         index = self.editor_tab_widget.indexOf(editor)
         
         if value:

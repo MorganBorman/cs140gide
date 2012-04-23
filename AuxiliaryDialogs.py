@@ -65,6 +65,7 @@ class UnsavedFilesDialog(QtGui.QDialog):
         file_list = []
         
         if self.unsaved_file_table.rowCount() == 0:
+            print "Took the easy way out. Didn't seem to be any rows."
             return []
         
         for row_index in range(self.unsaved_file_table.rowCount()):
@@ -86,8 +87,17 @@ class UnsavedFilesDialog(QtGui.QDialog):
             self.unsaved_file_table.setItem(row_index, 0, item)
             
     def on_table_item_changed(self, item):
+        print self.get_response()
         if len(self.get_response()) > 0:
             self.save_and_close.setText("Save Selected and Close")
         else:
             self.save_and_close.setText("Close")
     
+class AboutDialog(QtGui.QDialog):
+    def __init__(self, parent):
+        QtGui.QDialog.__init__(self, parent)
+
+        # Set up the user interface from .ui file
+        uic.loadUi("resources/AboutDialog.ui", self)
+        
+        self.accepted.connect(self.hide)
