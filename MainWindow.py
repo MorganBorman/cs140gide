@@ -11,7 +11,6 @@ class MainWindow(QtGui.QMainWindow):
         # Set up the user interface from .ui file
         uic.loadUi("resources/MainWindow.ui", self)
         
-        #A dictionary of the file handles with the filenames as keys
         self.project_model = project_model
         
         #connect slots to the signals which may be emitted by the ProjectModel

@@ -38,22 +38,26 @@ class SourceEditor(QsciScintilla):
         # Margin 0 is used for line numbers
         fontmetrics = QFontMetrics(font)
         self.setMarginsFont(font)
-        self.setMarginWidth(0, fontmetrics.width("00000") + 6)
+        #self.setMarginWidth(0, fontmetrics.width("00000") + 6)
+        self.setMarginWidth(0, fontmetrics.width("0000"))
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
 
         # Clickable margin 1 for showing markers
-        self.setMarginSensitivity(1, True)
-        self.connect(self,
-            SIGNAL('marginClicked(int, int, Qt::KeyboardModifiers)'),
-            self.on_margin_clicked)
+        #self.setMarginSensitivity(1, True)
+        #self.connect(self,
+        #    SIGNAL('marginClicked(int, int, Qt::KeyboardModifiers)'),
+        #    self.on_margin_clicked)
 
-        self.markerDefine(QsciScintilla.RightArrow, self.ARROW_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("#ee1111"), self.ARROW_MARKER_NUM)
+        #self.markerDefine(QsciScintilla.RightArrow, self.ARROW_MARKER_NUM)
+        #self.setMarkerBackgroundColor(QColor("#ee1111"), self.ARROW_MARKER_NUM)
 
         # Brace matching: enable for a brace immediately before or after
         # the current position
         #
+        
+        self.setWhitespaceVisibility(self.WsVisible)
+        
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
 
         # Current line visible with special background color
