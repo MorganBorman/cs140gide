@@ -94,7 +94,6 @@ class MainWindow(QtGui.QMainWindow):
         
         if not cancelled:
             files_to_save = self.unsaved_files_dialog.get_response()
-            print "Files to save:", files_to_save
             for filename in files_to_save:
                 self.project_model.save(filename)
             

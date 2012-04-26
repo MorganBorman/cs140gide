@@ -166,7 +166,7 @@ class ProjectModel(QtCore.QObject):
         
         for editor, file in self.files.items():
             if file.modified:
-                unsaved.append(file.filename)
+                unsaved.append(file)
         
         if len(unsaved) > 0:
             self.unsavedFiles.emit(unsaved)

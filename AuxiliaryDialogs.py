@@ -65,7 +65,6 @@ class UnsavedFilesDialog(QtGui.QDialog):
         file_list = []
         
         if self.unsaved_file_table.rowCount() == 0:
-            print "Took the easy way out. Didn't seem to be any rows."
             return []
         
         for row_index in range(self.unsaved_file_table.rowCount()):
@@ -73,25 +72,31 @@ class UnsavedFilesDialog(QtGui.QDialog):
             row_widget_item = self.unsaved_file_table.item(row_index, 0)
             
             if (row_widget_item is not None) and (row_widget_item.checkState() > 0):
-                file_list.append(str(self.unsaved_file_table.item(row_index, 0).text()))
+                if row_index < len(self.file_list):
+                    file_list.append(self.file_list[row_index])
             
         return file_list
     
     def set_list(self, file_list):
         "Set the list of files to ask the user about."
+        self.file_list = file_list
+        
         self.unsaved_file_table.setRowCount(len(file_list))
         for row_index in range(len(file_list)):
-            
-            item = QtGui.QTableWidgetItem(QtCore.QString(file_list[row_index]))
+            item = QtGui.QTableWidgetItem(QtCore.QString(file_list[row_index].filename))
             item.setCheckState(True)
             self.unsaved_file_table.setItem(row_index, 0, item)
             
     def on_table_item_changed(self, item):
-        print self.get_response()
-        if len(self.get_response()) > 0:
+        "Set the button text to be clearer about what will happen if they click it with the current selection."
+        response_list_len = len(self.get_response())
+        
+        if response_list_len == len(self.file_list):
+            self.save_and_close.setText("Save All and Close")
+        elif response_list_len > 0:
             self.save_and_close.setText("Save Selected and Close")
         else:
-            self.save_and_close.setText("Close")
+            self.save_and_close.setText("Discarding All and Close")
     
 class AboutDialog(QtGui.QDialog):
     def __init__(self, parent):
