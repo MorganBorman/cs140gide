@@ -21,12 +21,14 @@ HEADERS  +=
 FORMS    += \
     resources/MainWindow.ui \
     resources/UnsavedFilesDialog.ui \
-    resources/AboutDialog.ui
+    resources/AboutDialog.ui \
+    resources/FindReplaceDialog.ui
 
 OTHER_FILES +=
 
 RESOURCES += \
     resources/cs140adagide.qrc
+
 
 
 

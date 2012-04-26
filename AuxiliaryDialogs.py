@@ -106,3 +106,12 @@ class AboutDialog(QtGui.QDialog):
         uic.loadUi("resources/AboutDialog.ui", self)
         
         self.accepted.connect(self.hide)
+        
+class FindReplaceDialog(QtGui.QDialog):
+    def __init__(self, parent):
+        QtGui.QDialog.__init__(self, parent)
+
+        # Set up the user interface from .ui file
+        uic.loadUi("resources/FindReplaceDialog.ui", self)
+        
+        self.close_button.clicked.connect(self.hide)

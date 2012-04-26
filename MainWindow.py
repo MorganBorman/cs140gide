@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from PyQt4 import QtCore, QtGui, uic
-from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog, AboutDialog
+from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog, FindReplaceDialog, AboutDialog
 from ConsoleWidget import Console
 
 class MainWindow(QtGui.QMainWindow):
@@ -55,6 +55,8 @@ class MainWindow(QtGui.QMainWindow):
         self.unsaved_files_dialog = UnsavedFilesDialog(self)
         
         self.goto_line_dialog = GotoLineDialog(self)
+        
+        self.find_replace_dialog = FindReplaceDialog(self)
         
         self.about_dialog = AboutDialog(self)
         

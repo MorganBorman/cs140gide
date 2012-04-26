@@ -129,7 +129,9 @@ class Controller(QtCore.QObject):
             current_editor_widget.selectAll()
         
     def on_action_find_replace(self):
-        print "find replace triggered."
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            self.view_window.find_replace_dialog.open()
         
     def on_action_goto_line(self):
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
