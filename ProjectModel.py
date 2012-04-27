@@ -53,8 +53,6 @@ class FileEditor(Qsci.QsciScintilla):
 
 
 class ProjectFile(FileEditor):
-    modificationChanged = QtCore.pyqtSignal(QtCore.QObject, bool)
-    
     def __init__(self, parent_model, filename, file_path):
         FileEditor.__init__(self, None)
         
@@ -102,9 +100,9 @@ class ProjectModel(QtCore.QObject):
     #signals emitted by this model
     projectOpened = QtCore.pyqtSignal(bool)
     unsavedFiles = QtCore.pyqtSignal(list)
-    fileOpened = QtCore.pyqtSignal(str, QtCore.QObject)
+    fileOpened = QtCore.pyqtSignal(QtCore.QObject)
     fileClosed = QtCore.pyqtSignal(QtCore.QObject)
-    fileModified = QtCore.pyqtSignal(QtCore.QObject, str, bool)
+    fileModified = QtCore.pyqtSignal(QtCore.QObject)
     statusMessage = QtCore.pyqtSignal(str)
     
     def __init__(self):
@@ -114,8 +112,8 @@ class ProjectModel(QtCore.QObject):
         #Keep track of the current project directory
         self.project_directory = None
         
-        #Dictionary of ProjectFile objects keyed by editor object
-        self.files = {}
+        #List of the editors associated with this project
+        self.file_editors = []
     
     def open(self, project_directory):
         "Tell the project model that we want to open a new/existing project."
@@ -132,7 +130,7 @@ class ProjectModel(QtCore.QObject):
         
     def new_project(self, project_directory):
         if os.path.exists(project_directory):
-            self.statusMessage.emit("The selected project name already exists. Either choose a different one, or use open to open an existing project.")
+            self.statusMessage.emit("The selected project name already exists. Either choose a different one, or use open to open the existing project.")
             return
         else:
             os.makedirs(project_directory)
@@ -147,32 +145,37 @@ class ProjectModel(QtCore.QObject):
             shutil.rmtree(project_directory)
                 
     def __open_file(self, filename):
-        "Helper function to open a file for the current project."
+        "Helper function to open a file_editor for the current project."
         full_path = os.path.join(self.project_directory, filename)
-        file = ProjectFile(self, filename, full_path)
-        file.modificationChanged.connect(self.on_file_modification_changed)
-        self.fileOpened.emit(filename, file)
-        self.files[file] = file
         
-    def __close_file(self, editor):
-        "Helper function to close a file for the current project."
-        file = self.files[editor]
-        del self.files[editor]
-        file.close()
-        self.fileClosed.emit(editor)
-        file.modificationChanged.disconnect(self.on_file_modification_changed)
+        file_editor = ProjectFile(self, filename, full_path)
+        file_editor.modificationChanged.connect(self.on_file_modification_changed)
         
-    def on_file_modification_changed(self, editor, value):
+        self.fileOpened.emit(file_editor)
+        self.file_editors.append(file_editor)
+        
+    def __close_file(self, file_editor):
+        "Helper function to close a file_editor for the current project."
+        if file_editor not in self.file_editors:
+            return
+        
+        self.file_editors.remove(file_editor)
+        file_editor.close()
+        
+        self.fileClosed.emit(file_editor)
+        file_editor.modificationChanged.disconnect(self.on_file_modification_changed)
+        
+    def on_file_modification_changed(self, file_editor):
         "Just re-emit the signal so that the view can handle it."
-        self.fileModified.emit(editor, self.files[editor].filename, value)
+        self.fileModified.emit(file_editor)
         
     def close(self):
         "Tell the project model that we want it to close."
         unsaved = []
         
-        for editor, file in self.files.items():
-            if file.modified:
-                unsaved.append(file)
+        for file_editor in self.file_editors:
+            if file_editor.modified:
+                unsaved.append(file_editor)
         
         if len(unsaved) > 0:
             self.unsavedFiles.emit(unsaved)
@@ -180,16 +183,18 @@ class ProjectModel(QtCore.QObject):
             self.force_close()
                 
     def force_close(self):
-        "Tell the model to close all files even unsaved ones without issuing unsavedFiles signal."
-        for filename in self.files.keys():
-            self.__close_file(filename)
+        "Tell the model to close all file_editors even unsaved ones without issuing unsavedFiles signal."
+        
+        for file_editor in self.file_editors:
+            self.__close_file(file_editor)
+            
         self.project_directory = None
         self.projectOpened.emit(False)
         
     def new(self, filename):
         "Tell the project model that we want a new file by a given name."
         if not ( fnmatch.fnmatch(filename, '*.cpp') or fnmatch.fnmatch(filename, '*.h') ):
-            self.statusMessage.emit("You must create files with a '.cpp' or '.h' extension.")
+            self.statusMessage.emit("You must create file_editors with a '.cpp' or '.h' extension.")
             return
         
         full_path = os.path.join(self.project_directory, filename)
@@ -204,31 +209,31 @@ class ProjectModel(QtCore.QObject):
             
         self.__open_file(filename)
         
-    def delete(self, editor):
-        "Move a file that the user asks to have deleted into the '.project_trash' folder in the project."
-        if not editor in self.files.keys():
+    def delete(self, file_editor):
+        "Move a file_editor that the user asks to have deleted into the '.project_trash' folder in the project."
+        if not file_editor in self.file_editors:
             return
         
         trashes_directory = os.path.join(self.project_directory, ".project_trash")
         if not os.path.exists(trashes_directory):
             os.makedirs(trashes_directory)
             
-        file = self.files[editor]
+        self.__close_file(file_editor)
             
-        self.__close_file(editor)
-            
-        shutil.move(file.file_path, os.path.join(trashes_directory, file.filename))
+        shutil.move(file_editor.file_path, os.path.join(trashes_directory, file_editor.filename))
         
-    def save(self, editor):
+    def save(self, file_editor):
         "Tell this project model to save the file that has the given name."
-        if editor in self.files.keys():
-            self.files[editor].save()
+        
+        #Questionable whether we should actually check this
+        if file_editor in self.file_editors:
+            file_editor.save()
     
     def save_all(self):
-        "Tell this project model to save all files."
-        for editor, file in self.files.items():
-            file.save()
+        "Tell this project model to save all file_editors."
+        for file_editor in self.file_editors:
+            file_editor.save()
     
     @property
     def closed(self):
-        return self.project_directory == None and len(self.files) == 0
+        return self.project_directory == None and len(self.file_editors) == 0

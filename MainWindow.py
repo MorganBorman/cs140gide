@@ -112,33 +112,44 @@ class MainWindow(QtGui.QMainWindow):
         self.set_project_actions_enabled(value)
         if value:
             index = self.editor_tab_widget.indexOf(self.welcome_widget)
-            self.editor_tab_widget.removeTab(index)
-            if len(self.editor_tab_widget) == 0:
-                self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
+            
+            if index >= 0:
+                self.editor_tab_widget.removeTab(index)
+                if len(self.editor_tab_widget) == 0:
+                    self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
         else:
             self.editor_tab_widget.clear()
             self.editor_tab_widget.addTab(self.welcome_widget, "Welcome")
             
-    def on_model_file_closed(self, editor):
-    	"A model file has closed so close the editor tab associated with it."
-        index = self.editor_tab_widget.indexOf(editor)
-        self.editor_tab_widget.removeTab(index)
+    def on_model_file_closed(self, file_editor):
+    	"A model file has closed so close the file_editor tab associated with it."
+        index = self.editor_tab_widget.indexOf(file_editor)
         
-        if len(self.editor_tab_widget) == 0:
-            self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
+        if index >= 0:
+            self.editor_tab_widget.removeTab(index)
             
-    def on_model_file_modified_state(self, editor, filename, value):
+            if len(self.editor_tab_widget) == 0:
+                self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
+            
+    def on_model_file_modified_state(self, file_editor):
     	"Set whether or not a file tab indicates that the specified file is modified or not."
-        index = self.editor_tab_widget.indexOf(editor)
+        index = self.editor_tab_widget.indexOf(file_editor)
         
-        if value:
-            self.editor_tab_widget.setTabText(index, QtCore.QString("*" + filename))
-        else:
-            self.editor_tab_widget.setTabText(index, QtCore.QString(filename))
+        print "file modified state changed received in mainwindow instance."
+        
+        if index >= 0:
+            if file_editor.modified:
+                self.editor_tab_widget.setTabText(index, QtCore.QString("*" + file_editor.filename))
+            else:
+                self.editor_tab_widget.setTabText(index, QtCore.QString(file_editor.filename))
 
-    def on_model_file_opened(self, filename, editor):
-        "Add a new tab for the given filename with the editor specified as the widget."
-        index = self.editor_tab_widget.indexOf(self.new_project_widget)
-        self.editor_tab_widget.removeTab(index)
+    def on_model_file_opened(self, file_editor):
+        "Add a new tab for the given filename with the file_editor specified as the widget."
         
-        self.editor_tab_widget.addTab(editor, QtCore.QString(filename))
+        #remove the new_project widget if it's still displayed
+        index = self.editor_tab_widget.indexOf(self.new_project_widget)
+        if index >= 0:
+            self.editor_tab_widget.removeTab(index)
+        
+        self.editor_tab_widget.addTab(file_editor, QtCore.QString(file_editor.filename))
+
