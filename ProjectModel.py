@@ -68,8 +68,14 @@ class ProjectFile(FileEditor):
         
         self.setModified(False)
         
+        self.selectionChanged.connect(self.on_selection_changed)
         self.modificationChanged.connect(self.on_modification_changed)
         
+        self.has_search_selection = False
+    
+    def on_selection_changed(self):
+        self.has_search_selection = False
+    
     def save(self):
         "Save this file"
         if self.filehandle != None:

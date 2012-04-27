@@ -29,6 +29,10 @@ class Controller(QtCore.QObject):
         self.view_window.new_project_dialog.fileSelected.connect(self.on_new_project_accepted)
         self.view_window.open_project_dialog.fileSelected.connect(self.on_open_project_accepted)
         
+        self.view_window.find_replace_dialog.replace_all.connect(self.on_replace_all)
+        self.view_window.find_replace_dialog.replace.connect(self.on_replace)
+        self.view_window.find_replace_dialog.find.connect(self.on_find)
+        
         self.view_window.goto_line_dialog.accepted.connect(self.on_goto_line_accepted)
         
     #######################################################
@@ -132,6 +136,43 @@ class Controller(QtCore.QObject):
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
         if current_editor_widget is not None:
             self.view_window.find_replace_dialog.open()
+            
+    def on_replace_all(self, check_states, search_for, replace_with):
+        print "replace all clicked"
+    
+    def on_replace(self, check_states, search_for, replace_with):
+        print "replace clicked"
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            current_editor_widget.replace(replace_with)
+    
+    def on_find(self, check_states, search_for):
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            print "findFirst =", current_editor_widget.findFirst(   search_for,
+                                                                    False,
+                                                                    check_states['match case'],
+                                                                    check_states['match entire word'],
+                                                                    check_states['wrap around'],
+                                                                    not check_states['search backward']
+                                                                )
+            
+            """
+            wasFound = QScintillaEditor.findFirst(
+                                                    QString   expr,
+                                                    bool      re,
+                                                    bool      cs,
+                                                    bool      wo,
+                                                    bool      wrap,
+                                                    bool      forward = true,
+                                                    int      line = -1,
+                                                    int      index = -1,
+                                                    bool      show = true,
+                                                    bool      posix = false
+                                                )
+            """
+            
+            #print current_editor_widget.getSelection()
         
     def on_action_goto_line(self):
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
