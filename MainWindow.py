@@ -92,6 +92,7 @@ class MainWindow(QtGui.QMainWindow):
         self.unsaved_files_dialog.set_list(unsaved_list)
         self.unsaved_files_dialog.show()
         
+        #synchronously show the unsaved files dialog window
         cancelled = self.unsaved_files_dialog.exec_() == 0
         
         if not cancelled:
@@ -111,13 +112,17 @@ class MainWindow(QtGui.QMainWindow):
     	"""
         self.set_project_actions_enabled(value)
         if value:
-            index = self.editor_tab_widget.indexOf(self.welcome_widget)
             
+            #Remove the welcome widget it it is present.
+            index = self.editor_tab_widget.indexOf(self.welcome_widget)
             if index >= 0:
                 self.editor_tab_widget.removeTab(index)
-                if len(self.editor_tab_widget) == 0:
-                    self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
+                
+            #Once we've opened the project if there are no files, show the new project help
+            if len(self.editor_tab_widget) == 0:
+                self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
         else:
+            #If closing a project, clear the tabs and display the welcome tab
             self.editor_tab_widget.clear()
             self.editor_tab_widget.addTab(self.welcome_widget, "Welcome")
             
@@ -133,8 +138,9 @@ class MainWindow(QtGui.QMainWindow):
             
     def on_model_file_modified_state_change(self, file_editor):
     	"Set whether or not a file tab indicates that the specified file is modified or not."
-        index = self.editor_tab_widget.indexOf(file_editor)
         
+        #If the modified widget is found set it's name +- a * to indicate whether it is modified. 
+        index = self.editor_tab_widget.indexOf(file_editor)
         if index >= 0:
             if file_editor.modified:
                 self.editor_tab_widget.setTabText(index, QtCore.QString("*" + file_editor.filename))
@@ -144,7 +150,7 @@ class MainWindow(QtGui.QMainWindow):
     def on_model_file_opened(self, file_editor):
         "Add a new tab for the given filename with the file_editor specified as the widget."
         
-        #remove the new_project widget if it's still displayed
+        #Remove the new_project widget if it's still displayed
         index = self.editor_tab_widget.indexOf(self.new_project_widget)
         if index >= 0:
             self.editor_tab_widget.removeTab(index)

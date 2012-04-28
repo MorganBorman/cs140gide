@@ -11,6 +11,10 @@ from PyQt4 import QtGui
 # import QsciScintilla, QsciLexerCPP
 
 class FileEditor(Qsci.QsciScintilla):
+    """
+    The settings and configuration of this class are based on the example tutorial by Eli Bendersky.
+    http://eli.thegreenplace.net/2011/04/01/sample-using-qscintilla-with-pyqt/
+    """
     
     def __init__(self, parent):
         Qsci.QsciScintilla.__init__(self)
@@ -71,10 +75,12 @@ class ProjectFile(FileEditor):
         self.selectionChanged.connect(self.on_selection_changed)
         self.modificationChanged.connect(self.on_modification_changed)
         
-        self.has_search_selection = False
+        #Used to keep track of what search the current selection is a result of.
+        # None indicates that the current selection is not the result of a search operation.
+        self.current_search_selection = None
     
     def on_selection_changed(self):
-        self.has_search_selection = False
+        self.current_search_selection = None
     
     def save(self):
         "Save this file"

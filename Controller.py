@@ -138,44 +138,79 @@ class Controller(QtCore.QObject):
             self.view_window.find_replace_dialog.open()
             
     def on_replace_all(self, check_states, search_for, replace_with):
-        print "replace all clicked"
-    
-    def on_replace(self, check_states, search_for, replace_with):
-        print "replace clicked"
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
         if current_editor_widget is not None:
-            current_editor_widget.replace(replace_with)
+            
+            search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'])
+            
+            if current_editor_widget.current_search_selection != search_description_tuple:
+                self.on_find(check_states, search_for)
+                
+            while current_editor_widget.current_search_selection == search_description_tuple:
+                current_editor_widget.replace(replace_with)
+                
+                selection_start_row, selection_start_col, selection_end_row, selection_end_col = current_editor_widget.getSelection()
+                
+                current_editor_widget.setCursorPosition(selection_end_row, selection_end_col)
+                
+                self.on_find(check_states, search_for)
+    
+    def on_replace(self, check_states, search_for, replace_with):
+        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
+        if current_editor_widget is not None:
+            
+            search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'])
+            
+            if current_editor_widget.current_search_selection != search_description_tuple:
+                self.on_find(check_states, search_for)
+                
+            if current_editor_widget.current_search_selection == search_description_tuple:
+                current_editor_widget.replace(replace_with)
+                
+                selection_start_row, selection_start_col, selection_end_row, selection_end_col = current_editor_widget.getSelection()
+                
+                current_editor_widget.setCursorPosition(selection_end_row, selection_end_col)
+                
+                self.on_find(check_states, search_for)
     
     def on_find(self, check_states, search_for):
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
         if current_editor_widget is not None:
-            print "findFirst =", current_editor_widget.findFirst(   search_for,
-                                                                    False,
-                                                                    check_states['match case'],
-                                                                    check_states['match entire word'],
-                                                                    check_states['wrap around'],
-                                                                    not check_states['search backward']
-                                                                )
             
-            """
-            wasFound = QScintillaEditor.findFirst(
-                                                    QString   expr,
-                                                    bool      re,
-                                                    bool      cs,
-                                                    bool      wo,
-                                                    bool      wrap,
-                                                    bool      forward = true,
-                                                    int      line = -1,
-                                                    int      index = -1,
-                                                    bool      show = true,
-                                                    bool      posix = false
-                                                )
-            """
+            search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'])
             
-            #print current_editor_widget.getSelection()
-        
+            if current_editor_widget.current_search_selection == search_description_tuple:
+                was_found = current_editor_widget.findNext()
+            else:
+                was_found = current_editor_widget.findFirst(    search_for,
+                                                                False,
+                                                                check_states['match case'],
+                                                                check_states['match entire word'],
+                                                                check_states['wrap around'],
+                                                                not check_states['search backward']
+                                                            )
+                """
+                Coppied from the c++ documentation.
+                
+                wasFound = QScintillaEditor.findFirst(
+                                                        QString   expr,
+                                                        bool      re,
+                                                        bool      cs,
+                                                        bool      wo,
+                                                        bool      wrap,
+                                                        bool      forward = true,
+                                                        int      line = -1,
+                                                        int      index = -1,
+                                                        bool      show = true,
+                                                        bool      posix = false
+                                                    )
+                """
+            
+            if was_found:
+                #Set a variable indicating the the current selection is the result of a search.
+                current_editor_widget.current_search_selection = search_description_tuple
+                
     def on_action_goto_line(self):
-        current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
         if current_editor_widget is not None:
             self.view_window.goto_line_dialog.setIntRange(0, current_editor_widget.lines())
         
