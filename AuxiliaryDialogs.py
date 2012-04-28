@@ -120,6 +120,8 @@ class FindReplaceDialog(QtGui.QDialog):
         # Set up the user interface from .ui file
         uic.loadUi("resources/FindReplaceDialog.ui", self)
         
+        self.setModal(False)
+        
         self.close_button.clicked.connect(self.hide)
         self.replace_all_button.clicked.connect(self.replace_all_button_clicked)
         self.replace_button.clicked.connect(self.replace_button_clicked)

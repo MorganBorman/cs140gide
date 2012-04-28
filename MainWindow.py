@@ -56,7 +56,9 @@ class MainWindow(QtGui.QMainWindow):
         
         self.goto_line_dialog = GotoLineDialog(self)
         
-        self.find_replace_dialog = FindReplaceDialog(self)
+        #This dialog doesn't have a parent. It functions independently of the main window.
+        #self.find_replace_dialog = FindReplaceDialog(self)
+        self.find_replace_dialog = FindReplaceDialog(None)
         
         self.about_dialog = AboutDialog(self)
         
