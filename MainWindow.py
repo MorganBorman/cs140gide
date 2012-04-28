@@ -18,7 +18,7 @@ class MainWindow(QtGui.QMainWindow):
         self.project_model.fileOpened.connect(self.on_model_file_opened)
         self.project_model.fileClosed.connect(self.on_model_file_closed)
         self.project_model.projectOpened.connect(self.on_model_project_opened_state)
-        self.project_model.fileModified.connect(self.on_model_file_modified_state)
+        self.project_model.fileModifiedStateChanged.connect(self.on_model_file_modified_state_change)
 
         # Names of major widgets we probably need to access
         # self.editor_tab_widget
@@ -131,11 +131,9 @@ class MainWindow(QtGui.QMainWindow):
             if len(self.editor_tab_widget) == 0:
                 self.editor_tab_widget.addTab(self.new_project_widget, "New Project")
             
-    def on_model_file_modified_state(self, file_editor):
+    def on_model_file_modified_state_change(self, file_editor):
     	"Set whether or not a file tab indicates that the specified file is modified or not."
         index = self.editor_tab_widget.indexOf(file_editor)
-        
-        print "file modified state changed received in mainwindow instance."
         
         if index >= 0:
             if file_editor.modified:

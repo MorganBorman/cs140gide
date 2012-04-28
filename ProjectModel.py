@@ -53,6 +53,8 @@ class FileEditor(Qsci.QsciScintilla):
 
 
 class ProjectFile(FileEditor):
+    modificationStateChanged = QtCore.pyqtSignal(QtCore.QObject)
+    
     def __init__(self, parent_model, filename, file_path):
         FileEditor.__init__(self, None)
         
@@ -93,7 +95,7 @@ class ProjectFile(FileEditor):
         return self.isModified()
     
     def on_modification_changed(self, value):
-        self.modificationChanged.emit(self, value)
+        self.modificationStateChanged.emit(self)
 
 class ProjectModel(QtCore.QObject):
     
@@ -102,7 +104,7 @@ class ProjectModel(QtCore.QObject):
     unsavedFiles = QtCore.pyqtSignal(list)
     fileOpened = QtCore.pyqtSignal(QtCore.QObject)
     fileClosed = QtCore.pyqtSignal(QtCore.QObject)
-    fileModified = QtCore.pyqtSignal(QtCore.QObject)
+    fileModifiedStateChanged = QtCore.pyqtSignal(QtCore.QObject)
     statusMessage = QtCore.pyqtSignal(str)
     
     def __init__(self):
@@ -149,7 +151,7 @@ class ProjectModel(QtCore.QObject):
         full_path = os.path.join(self.project_directory, filename)
         
         file_editor = ProjectFile(self, filename, full_path)
-        file_editor.modificationChanged.connect(self.on_file_modification_changed)
+        file_editor.modificationStateChanged.connect(self.on_file_modification_state_changed)
         
         self.fileOpened.emit(file_editor)
         self.file_editors.append(file_editor)
@@ -163,11 +165,11 @@ class ProjectModel(QtCore.QObject):
         file_editor.close()
         
         self.fileClosed.emit(file_editor)
-        file_editor.modificationChanged.disconnect(self.on_file_modification_changed)
+        file_editor.modificationStateChanged.disconnect(self.on_file_modification_state_changed)
         
-    def on_file_modification_changed(self, file_editor):
+    def on_file_modification_state_changed(self, file_editor):
         "Just re-emit the signal so that the view can handle it."
-        self.fileModified.emit(file_editor)
+        self.fileModifiedStateChanged.emit(file_editor)
         
     def close(self):
         "Tell the project model that we want it to close."
@@ -185,7 +187,7 @@ class ProjectModel(QtCore.QObject):
     def force_close(self):
         "Tell the model to close all file_editors even unsaved ones without issuing unsavedFiles signal."
         
-        for file_editor in self.file_editors:
+        for file_editor in self.file_editors[:]:
             self.__close_file(file_editor)
             
         self.project_directory = None
@@ -237,3 +239,4 @@ class ProjectModel(QtCore.QObject):
     @property
     def closed(self):
         return self.project_directory == None and len(self.file_editors) == 0
+
