@@ -35,6 +35,9 @@ class Controller(QtCore.QObject):
         
         self.view_window.goto_line_dialog.accepted.connect(self.on_goto_line_accepted)
         
+        self.view_window.build_output.compile_success.connect(self.on_compile_success)
+        self.view_window.build_output.compile_fail.connect(self.on_compile_fail)
+
     #######################################################
     ###            triggered action handlers            ###
     #######################################################
@@ -243,3 +246,11 @@ class Controller(QtCore.QObject):
     def on_action_about(self):
         self.view_window.about_dialog.open()
         
+
+    #compile results
+
+    def on_compile_success(self, warnings):
+        pass
+
+    def on_compile_fail(self, errors):
+        pass
