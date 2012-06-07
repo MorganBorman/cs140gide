@@ -3,6 +3,7 @@
 from PyQt4 import QtCore, QtGui, uic
 from AuxiliaryDialogs import NewFileDialog, OpenProjectDialog, NewProjectDialog, ConfirmDeleteDialog, UnsavedFilesDialog, GotoLineDialog, FindReplaceDialog, AboutDialog
 from ConsoleWidget import Console
+from BuildWidget import Build
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, project_model):
@@ -22,12 +23,15 @@ class MainWindow(QtGui.QMainWindow):
 
         # Names of major widgets we probably need to access
         # self.editor_tab_widget
-        # self.program_output
-        # self.build_output
+        # self.program_output <- ConsoleWidget
+        # self.build_output <- BuildWidget
         # self.statusbar
         
         self.program_output = Console()
         self.verticalLayout.addWidget(self.program_output)
+
+        self.build_output = Build()
+        self.horizontalLayout_build.addWidget(self.build_output)
         
         #disable these context menus to stop the toolbar being closed
         self.toolbar.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)

@@ -69,7 +69,8 @@ class Console(QtGui.QPlainTextEdit):
                 self.line_buffer.keyPressEvent(event)
                 self.redraw()
             
-    def run(self, filename, args_string):
+    def run_program(self, filename, args_string):
+        # TODO kill old proccess
         self.clear()
         args = shlex.split(args_string)
         self.process.start(QtCore.QString(filename), QtCore.QStringList(args))

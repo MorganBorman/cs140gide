@@ -1,6 +1,6 @@
 
 from PyQt4 import QtCore, QtGui
-import sys
+import sys, os
 
 class Controller(QtCore.QObject):
     def __init__(self, project_model, view_window):
@@ -222,12 +222,17 @@ class Controller(QtCore.QObject):
     #action menu
         
     def on_action_build(self):
-        print "build triggered."
+        executable = os.path.join(self.project_model.project_directory, "a.out")
+        files = self.project_model.filenames
+        self.view_window.build_output.compile_project(files, executable)
+        print "Controller: Build triggered. Files " + str(files)
         
     def on_action_run(self):
+        #TODO: the name of the exec should come from the project.
+        executable = os.path.join(self.project_model.project_directory, "a.out") 
         arguments = str(self.view_window.program_arguments.text())
-        self.view_window.program_output.run("./inout", arguments)
-        print "run triggered. Arguments line '%s'" % arguments
+        self.view_window.program_output.run_program(executable, arguments)
+        print "Controller: Run triggered. Arguments line '%s'" % arguments
         
     #help menu
     

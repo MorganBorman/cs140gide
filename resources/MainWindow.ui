@@ -128,37 +128,8 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QTextEdit" name="build_output">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>300</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>0</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="undoRedoEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="textInteractionFlags">
-        <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-       </property>
+      <widget class="QWidget" name="horizontalLayoutWidget">
+       <layout class="QHBoxLayout" name="horizontalLayout_build" stretch=""/>
       </widget>
      </widget>
     </item>
@@ -484,7 +455,6 @@
  </widget>
  <tabstops>
   <tabstop>editor_tab_widget</tabstop>
-  <tabstop>build_output</tabstop>
  </tabstops>
  <resources>
   <include location="cs140adagide.qrc"/>
