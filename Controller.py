@@ -41,12 +41,14 @@ class Controller(QtCore.QObject):
         
     #new project dialog
     
-    def on_new_project_accepted(self, filename):
+    def on_new_project_accepted(self, filename): 
         self.project_model.new_project(str(filename))
         
     #open project dialog
    
     def on_open_project_accepted(self, filename):
+        self.view_window.program_output.clear()
+        self.view_window.build_output.clear()
         self.project_model.open(str(filename))
    
     #new file dialog
