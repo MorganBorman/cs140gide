@@ -77,7 +77,7 @@ class MainWindow(QtGui.QMainWindow):
     def set_project_actions_enabled(self, value):
         "Enable or disable actions that require a project to be open."
         
-        not_toggled_actions = [ 'action_new_project', 'action_open_project', 'action_quit', 'action_about', 'action_run' ]
+        not_toggled_actions = [ 'action_new_project', 'action_open_project', 'action_quit', 'action_about' ]
         
         for actionObject in self.actions():
             if not actionObject.objectName() in not_toggled_actions:
