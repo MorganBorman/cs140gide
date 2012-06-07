@@ -100,6 +100,10 @@ class ProjectFile(FileEditor):
         "Check if the file is modified compared to the saved version."
         return self.isModified()
 
+    @property
+    def extension(self):
+        return self.filename.split(".")[-1]
+
     def on_modification_changed(self, value):
         self.modificationStateChanged.emit(self)
 
@@ -246,8 +250,7 @@ class ProjectModel(QtCore.QObject):
     def closed(self):
         return self.project_directory == None and len(self.file_editors) == 0
 
-    @property
     def filenames(self):
-        return [os.path.join(self.project_directory, f.filename) for f in self.file_editors]
-
+        temp = [os.path.join(self.project_directory, f.filename) for f in self.file_editors if f.extension == "cpp"]
+        return temp
 

@@ -230,7 +230,7 @@ class Controller(QtCore.QObject):
         
     def on_action_build(self):
         executable = os.path.join(self.project_model.project_directory, "a.out")
-        files = self.project_model.filenames
+        files = self.project_model.filenames()
         self.view_window.build_output.compile_project(files, executable)
         print "Controller: Build triggered. Files " + str(files)
         
@@ -250,7 +250,9 @@ class Controller(QtCore.QObject):
     #compile results
 
     def on_compile_success(self, warnings):
+        #print warnings
         pass
 
     def on_compile_fail(self, errors):
+        #print errors
         pass

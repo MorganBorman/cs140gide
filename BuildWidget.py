@@ -1,6 +1,7 @@
 import sys 
 import os
 import shlex
+import re
 
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -11,9 +12,43 @@ class ClangCompiler:
         args.extend(files)
         args.extend(["-o", executable])
         process.start(QtCore.QString("clang++"), QtCore.QStringList(args))
-    def parse_errors(self, output):
-        #TODO: Finish this
-        return False #This should be the compiler output
+    
+    def is_id_line(self, line):
+        '''Takes a line and checks to see if it is a clang error message'''
+        if len(re.findall(".*:[0-9]+:[0-9]+: (error|warning):.*", line)) == 1:
+            return True
+        return False
+
+    
+    def parse_id_line(self, line):
+        '''Parses a clang line and returns a dict containing the appropriate info'''
+        #Todo: this will fail if the filename contains ":"
+        elements = line.split(":",4)
+        retval = {}
+        retval['filename'] = elements[0]
+        retval['line_no'] = elements[1]
+        retval['char_no'] = elements[2]
+        retval['error_type'] = elements[3].strip()
+        retval['error_msg'] = elements[4].strip()
+        return retval
+
+
+    def parse_output(self, output):
+            lines = output.split("\n")
+            sections = []
+            for i, line in enumerate(lines):
+                if self.is_id_line(line):
+                    sections.append(i)
+            errors = []
+            for i, line_pos in enumerate(sections):
+                temp = self.parse_id_line(lines[line_pos])
+                if i + 1 < len(sections):
+                    temp['full_msg'] = "\n".join(lines[line_pos:sections[i + 1]])
+                else:
+                    temp['full_msg'] = "\n".join(lines[line_pos:])
+                errors.append(temp)
+            return errors
+
 
 class GnuCompiler:
     def run(self, process, files, executable):
@@ -49,10 +84,12 @@ class Build(QtGui.QPlainTextEdit):
         pass
         
     def on_finished(self):
+        results = self.compiler.parse_output(self.contents)
         if self.process.exitCode() == 0:
+            self.compile_success.emit(results)
             self.write("[ Compilation Successful ]")
         else:
-            self.compiler.parse_errors(self.contents)
+            self.compile_fail.emit(results)
         
     def on_stderr(self):
         data = self.process.readAllStandardError()
