@@ -11,6 +11,9 @@ class ClangCompiler:
         args.extend(files)
         args.extend(["-o", executable])
         process.start(QtCore.QString("clang++"), QtCore.QStringList(args))
+    def parse_errors(self, output):
+        #TODO: Finish this
+        return False #This should be the compiler output
 
 class GnuCompiler:
     def run(self, process, files, executable):
@@ -27,7 +30,7 @@ class Build(QtGui.QPlainTextEdit):
         self.setReadOnly(True)
         self.document().setDefaultFont(QtGui.QFont("monospace", 9, QtGui.QFont.Normal))
 
-        self.compiler = GnuCompiler()
+        self.compiler = ClangCompiler()
         
         self.contents = ""
         self.process = QtCore.QProcess(self)
@@ -43,6 +46,8 @@ class Build(QtGui.QPlainTextEdit):
     def on_finished(self):
         if self.process.exitCode() == 0:
             self.write("[ Compilation Successful ]")
+        else:
+            self.compiler.parse_errors(self.contents)
         
     def on_stderr(self):
         data = self.process.readAllStandardError()

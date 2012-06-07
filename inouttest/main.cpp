@@ -14,7 +14,7 @@ int main() {
  cout << "You entered: " << input << endl << endl;
 
  // How to get a number.
- int myNumber = 0;
+ const char* myNumber = (const char*) -20;
 
  while (true) {
    cout << "Please enter a valid number: ";
@@ -27,6 +27,7 @@ int main() {
    cout << "Invalid number, please try again" << endl;
  }
  cout << "You entered: " << myNumber << endl << endl;
+ cout <<
 
  // How to get a single char.
  char myChar  = {0};
