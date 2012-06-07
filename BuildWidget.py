@@ -13,14 +13,15 @@ class ClangCompiler:
         args.extend(["-o", executable])
         process.start(QtCore.QString("clang++"), QtCore.QStringList(args))
     
-    def is_id_line(self, line):
+    @staticmethod
+    def is_id_line(line):
         '''Takes a line and checks to see if it is a clang error message'''
         if len(re.findall(".*:[0-9]+:[0-9]+: (error|warning):.*", line)) == 1:
             return True
         return False
 
-    
-    def parse_id_line(self, line):
+    @staticmethod
+    def parse_id_line(line):
         '''Parses a clang line and returns a dict containing the appropriate info'''
         #Todo: this will fail if the filename contains ":"
         elements = line.split(":",4)
@@ -51,6 +52,9 @@ class ClangCompiler:
 
 
 class GnuCompiler:
+    def parse_output(self, output):
+        return []
+    
     def run(self, process, files, executable):
         args = ["-g", "-Wall"]
         args.extend(files)
