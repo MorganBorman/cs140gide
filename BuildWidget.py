@@ -23,6 +23,11 @@ class GnuCompiler:
         process.start(QtCore.QString("g++"), QtCore.QStringList(args))
 
 class Build(QtGui.QPlainTextEdit):
+    
+    #signals emitted by this widget
+    compile_success = QtCore.pyqtSignal(list)
+    compile_fail = QtCore.pyqtSignal(list)
+
     def __init__(self, parent=None):
         QtGui.QPlainTextEdit.__init__(self, parent)
 
