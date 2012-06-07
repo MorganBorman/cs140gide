@@ -11,13 +11,11 @@ simple and intuitive editor, with all of the basic functionality expected.
 Basic Design
 ---
 
-
-
 We are using the QT toolkit to build our GUI, and to help manage processes we execute. 
 We use Scintilla (Of notepad++ and gedit fame) for our code editor. Our project uses an MVC design. 
 
-ProjectModel.py contains the code for managing files. 
-MainWindow.py sets up the main window, Scintilla, other widgets, and the toolbars. 
-Controller.py contains application level logic to tie all the separate components together. 
-BuildWidget.py manages running the compilation process.
-ConsoleWidget.py manages interfacing with the users compiled programs.
+* ProjectModel.py contains the code for managing files. 
+* MainWindow.py sets up the main window, Scintilla, other widgets, and the toolbars. 
+* Controller.py contains application level logic to tie all the separate components together. 
+* BuildWidget.py manages running the compilation process.
+* ConsoleWidget.py manages interfacing with the users compiled programs.
