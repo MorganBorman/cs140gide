@@ -168,16 +168,13 @@ class Controller(QtCore.QObject):
             
             search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'])
             
-            if current_editor_widget.current_search_selection != search_description_tuple:
+            # Tuples are compared, ignoring the backward/forward check.
+            # This allows the current selection to be replaced (expected behavior).
+            if current_editor_widget.current_search_selection and current_editor_widget.current_search_selection[:-1] != search_description_tuple[:-1]:
                 self.on_find(check_states, search_for)
                 
-            if current_editor_widget.current_search_selection == search_description_tuple:
+            if current_editor_widget.current_search_selection[:-1] == search_description_tuple[:-1]:
                 current_editor_widget.replace(replace_with)
-                
-                selection_start_row, selection_start_col, selection_end_row, selection_end_col = current_editor_widget.getSelection()
-                
-                current_editor_widget.setCursorPosition(selection_end_row, selection_end_col)
-                
                 self.on_find(check_states, search_for)
     
     def on_find(self, check_states, search_for):
@@ -192,12 +189,12 @@ class Controller(QtCore.QObject):
                 # Set our search start line and index based on if we are searching
                 # backwards or forwards. Stops find/replace from finding the current
                 # text when we've toggled the backwards/forwards find option.
-                lineFrom, indexFrom =  -1, -1
+                line_from, index_from =  -1, -1
                 if current_editor_widget.hasSelectedText():
                     if check_states['search backward']:
-                        (lineFrom, indexFrom, _, _) = current_editor_widget.getSelection()
+                        (line_from, index_from, _, _) = current_editor_widget.getSelection()
                     else:
-                        (_, _, lineFrom, indexFrom) = current_editor_widget.getSelection()
+                        (_, _, line_from, index_from) = current_editor_widget.getSelection()
 
                 was_found = current_editor_widget.findFirst(    search_for,
                                                                 False,
@@ -205,8 +202,8 @@ class Controller(QtCore.QObject):
                                                                 check_states['match entire word'],
                                                                 check_states['wrap around'],
                                                                 not check_states['search backward'],
-                                                                lineFrom,
-                                                                indexFrom
+                                                                line_from,
+                                                                index_from
                                                             )
                 """
                 Coppied from the c++ documentation.
