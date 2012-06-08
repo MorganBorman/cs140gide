@@ -184,17 +184,29 @@ class Controller(QtCore.QObject):
         current_editor_widget = self.view_window.editor_tab_widget.currentWidget()
         if current_editor_widget is not None:
             
-            search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'])
+            search_description_tuple = (search_for, check_states['match case'], check_states['match entire word'], check_states['wrap around'], check_states['search backward'],)
             
             if current_editor_widget.current_search_selection == search_description_tuple:
                 was_found = current_editor_widget.findNext()
             else:
+                # Set our search start line and index based on if we are searching
+                # backwards or forwards. Stops find/replace from finding the current
+                # text when we've toggled the backwards/forwards find option.
+                lineFrom, indexFrom =  -1, -1
+                if current_editor_widget.hasSelectedText():
+                    if check_states['search backward']:
+                        (lineFrom, indexFrom, _, _) = current_editor_widget.getSelection()
+                    else:
+                        (_, _, lineFrom, indexFrom) = current_editor_widget.getSelection()
+
                 was_found = current_editor_widget.findFirst(    search_for,
                                                                 False,
                                                                 check_states['match case'],
                                                                 check_states['match entire word'],
                                                                 check_states['wrap around'],
-                                                                not check_states['search backward']
+                                                                not check_states['search backward'],
+                                                                lineFrom,
+                                                                indexFrom
                                                             )
                 """
                 Coppied from the c++ documentation.
