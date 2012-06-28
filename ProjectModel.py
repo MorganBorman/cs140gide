@@ -4,16 +4,18 @@ Associated with the current project.
 
 '''
 import os, fnmatch, shutil
+import os.path
 from PyQt4 import QtCore
 from PyQt4 import Qsci
 from PyQt4 import QtGui
 import PyQt4.uic
 
-class ExternallyModifiedNotification(QtGui.QWidget):
-    def __init__(self, parent=None):
+class FloatingNotification(QtGui.QWidget):
+    def __init__(self, parent=None, ui_file=None):
         QtGui.QWidget.__init__(self, parent)
         
-        PyQt4.uic.loadUi("resources/ExternallyModified.ui", self)
+        if ui_file is not None:
+            PyQt4.uic.loadUi(ui_file, self)
         
         self.update_position()
         
@@ -127,13 +129,21 @@ class ProjectFile(FileEditor):
         # None indicates that the current selection is not the result of a search operation.
         self.current_search_selection = None
         
-        self.externally_modified_notification = ExternallyModifiedNotification(self)
+        self.externally_modified_notification = FloatingNotification(self, "resources/ExternallyModified.ui")
         self.externally_modified_notification.hide()
         
         self.externally_modified_notification.buttonbox.accepted.connect(self.on_ext_mod_notify_reload)
         self.externally_modified_notification.buttonbox.rejected.connect(self.on_ext_mod_notify_noreload)
         
+        self.externally_removed_notification = FloatingNotification(self, "resources/ExternallyRemoved.ui")
+        self.externally_removed_notification.hide()
+        
+        self.externally_removed_notification.buttonbox.accepted.connect(self.on_ext_rem_notify_keep)
+        self.externally_removed_notification.buttonbox.rejected.connect(self.on_ext_rem_notify_nokeep)
+        
         self.appear_modified = False
+        
+        self.last_modified = os.path.getmtime(self.file_path)
         
     def read_file_contents(self):
         if self.filehandle is not None:
@@ -142,6 +152,7 @@ class ProjectFile(FileEditor):
             self.filehandle.close()
             self.setModified(False)
             self.appear_modified = False
+            self.last_modified = os.path.getmtime(self.file_path)
         
     def write_file_contents(self):
         if self.filehandle is not None:
@@ -150,6 +161,13 @@ class ProjectFile(FileEditor):
             self.filehandle.close()
             self.setModified(False)
             self.appear_modified = False
+            self.last_modified = os.path.getmtime(self.file_path)
+            
+    def externally_modified(self):
+        try:
+            return self.last_modified != os.path.getmtime(self.file_path)
+        except OSError:
+            return True
         
     def on_ext_mod_notify_reload(self):
         self.read_file_contents()
@@ -161,6 +179,13 @@ class ProjectFile(FileEditor):
         self.on_modification_changed(True)
         self.setReadOnly(False)
         self.externally_modified_notification.hide()
+        
+    def on_ext_rem_notify_keep(self):
+        self.write_file_contents()
+        
+    def on_ext_rem_notify_nokeep(self):
+        self.write_file_contents()
+        self.parent_model.delete(self)
     
     def on_selection_changed(self):
         self.current_search_selection = None
@@ -271,12 +296,14 @@ class ProjectModel(QtCore.QObject):
         self.fileModifiedStateChanged.emit(file_editor)
         
     def on_file_changed(self, filename):
+        filename = str(filename)
     
-        print filename, self.saving_files
+        #print filename, self.saving_files
+        #print list(self.file_watcher.files())
     
-        if filename in self.saving_files:
-            self.saving_files.remove(filename)
-            return
+        #if filename in self.saving_files:
+        #    self.saving_files.remove(filename)
+        #    return
             
         file_editor = None
             
@@ -287,10 +314,17 @@ class ProjectModel(QtCore.QObject):
         if file_editor is None:
             return
             
-        self.file_watcher.addPath(file_editor.file_path)
+        if not file_editor.externally_modified():
+            return
             
-        file_editor.externally_modified_notification.show()
+        self.file_watcher.addPath(file_editor.file_path)
+        
         file_editor.setReadOnly(True)
+            
+        if os.path.isfile(file_editor.file_path):
+            file_editor.externally_modified_notification.show()
+        else:
+            file_editor.externally_removed_notification.show()
         
     def close(self):
         "Tell the project model that we want it to close."
