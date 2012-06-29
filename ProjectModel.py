@@ -6,209 +6,8 @@ Associated with the current project.
 import os, fnmatch, shutil
 import os.path
 from PyQt4 import QtCore
-from PyQt4 import Qsci
 from PyQt4 import QtGui
-import PyQt4.uic
-
-class FloatingNotification(QtGui.QWidget):
-    def __init__(self, parent=None, ui_file=None):
-        QtGui.QWidget.__init__(self, parent)
-        
-        if ui_file is not None:
-            PyQt4.uic.loadUi(ui_file, self)
-        
-        self.update_position()
-        
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(32)
-        self.timer.timeout.connect(self.update_position)
-        #self.timer.start()
-        
-        self.setStyleSheet(self.STYLESHEET)
-        
-    STYLESHEET = '''
-    #frame {
-        color: rgb(0, 0, 0);
-        background-color: rgb(200, 200, 200);
-        border: 1px solid;
-        border-color: rgb(100, 100, 100);
-        border-radius: 5px;
-        padding: 2px;
-    }
-    '''
-        
-    def update_position(self):
-    
-        if hasattr(self.parent(), 'viewport'):
-            parentRect = self.parent().viewport().rect()
-        else:
-            parentRect = self.parent().rect()
-            
-        if not parentRect:
-            return
-            
-        x = (parentRect.width()/2) - (self.width()/2)
-        y = (parentRect.height()/2) - (self.height()/2)
-        w = min(parentRect.width(), 268)
-        
-        self.setGeometry(x, y, w, self.height())
-        
-    def resizeEvent(self, event):
-        self.update_position()
-        
-    def show(self):
-        super(self.__class__, self).show()
-        self.timer.start()
-        
-    def hide(self):
-        super(self.__class__, self).hide()
-        self.timer.stop()
-
-class FileEditor(Qsci.QsciScintilla):
-    """
-    The settings and configuration of this class are based on the example tutorial by Eli Bendersky.
-    http://eli.thegreenplace.net/2011/04/01/sample-using-qscintilla-with-pyqt/
-    """
-    
-    def __init__(self, parent):
-        Qsci.QsciScintilla.__init__(self)
-        
-        # Set the default font
-        font = QtGui.QFont()
-        font.setFamily('Courier')
-        font.setFixedPitch(True)
-        font.setPointSize(10)
-        self.setFont(font)
-        self.setMarginsFont(font)
-        
-        # Margin 0 is used for line numbers 
-        
-        fontmetrics = QtGui.QFontMetrics(font)
-        self.setMarginsFont(font)
-        self.setMarginWidth(0, fontmetrics.width("0000"))
-        self.setMarginLineNumbers(10, True)
-        self.setMarginsBackgroundColor(QtGui.QColor("#cccccc"))
-        
-        self.setWhitespaceVisibility(self.WsVisible)
-        
-        self.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
-        
-        # Current line visible with special background color
-        self.setCaretLineVisible(True)
-        self.setCaretLineBackgroundColor(QtGui.QColor("#ffe4e4"))
-        
-        lexer = Qsci.QsciLexerCPP()
-        lexer.setDefaultFont(font)
-        self.setLexer(lexer)
-        self.SendScintilla(Qsci.QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
-        
-        self.SendScintilla(Qsci.QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        #self.SendScintilla(Qsci.QsciScintilla.SCI_SETSCROLLWIDTH, 10)
-        #self.SendScintilla(Qsci.QsciScintilla.SCI_SETSCROLLWIDTHTRACKING, 1)
-        
-        # not too small
-        self.setMinimumSize(200, 200)
-
-
-class ProjectFile(FileEditor):
-    modificationStateChanged = QtCore.pyqtSignal(QtCore.QObject)
-    
-    def __init__(self, parent_model, filename, file_path):
-        FileEditor.__init__(self, None)
-        
-        self.parent_model = parent_model
-        self.filename = filename
-        self.file_path = file_path
-        self.filehandle = QtCore.QFile(self.file_path)
-        self.read_file_contents()
-        
-        self.selectionChanged.connect(self.on_selection_changed)
-        self.modificationChanged.connect(self.on_modification_changed)
-        
-        #Used to keep track of what search the current selection is a result of.
-        # None indicates that the current selection is not the result of a search operation.
-        self.current_search_selection = None
-        
-        self.externally_modified_notification = FloatingNotification(self, "resources/ExternallyModified.ui")
-        self.externally_modified_notification.hide()
-        
-        self.externally_modified_notification.buttonbox.accepted.connect(self.on_ext_mod_notify_reload)
-        self.externally_modified_notification.buttonbox.rejected.connect(self.on_ext_mod_notify_noreload)
-        
-        self.externally_removed_notification = FloatingNotification(self, "resources/ExternallyRemoved.ui")
-        self.externally_removed_notification.hide()
-        
-        self.externally_removed_notification.buttonbox.accepted.connect(self.on_ext_rem_notify_keep)
-        self.externally_removed_notification.buttonbox.rejected.connect(self.on_ext_rem_notify_nokeep)
-        
-        self.appear_modified = False
-        
-        self.last_modified = os.path.getmtime(self.file_path)
-        
-    def read_file_contents(self):
-        if self.filehandle is not None:
-            self.filehandle.open(QtCore.QIODevice.ReadOnly)
-            self.read(self.filehandle)
-            self.filehandle.close()
-            self.setModified(False)
-            self.appear_modified = False
-            self.last_modified = os.path.getmtime(self.file_path)
-        
-    def write_file_contents(self):
-        if self.filehandle is not None:
-            self.filehandle.open(QtCore.QIODevice.WriteOnly)
-            self.write(self.filehandle)
-            self.filehandle.close()
-            self.setModified(False)
-            self.appear_modified = False
-            self.last_modified = os.path.getmtime(self.file_path)
-            
-    def externally_modified(self):
-        try:
-            return self.last_modified != os.path.getmtime(self.file_path)
-        except OSError:
-            return True
-        
-    def on_ext_mod_notify_reload(self):
-        self.read_file_contents()
-        self.setReadOnly(False)
-        self.externally_modified_notification.hide()
-        
-    def on_ext_mod_notify_noreload(self):
-        self.appear_modified = True
-        self.on_modification_changed(True)
-        self.setReadOnly(False)
-        self.externally_modified_notification.hide()
-        
-    def on_ext_rem_notify_keep(self):
-        self.write_file_contents()
-        
-    def on_ext_rem_notify_nokeep(self):
-        self.write_file_contents()
-        self.parent_model.delete(self)
-    
-    def on_selection_changed(self):
-        self.current_search_selection = None
-    
-    def save(self):
-        "Save this file"
-        self.write_file_contents()
-    
-    def close(self):
-        self.filehandle.close()
-        self.filehandle = None
-    
-    @property
-    def modified(self):
-        "Check if the file is modified compared to the saved version."
-        return self.isModified() or self.appear_modified
-
-    @property
-    def extension(self):
-        return self.filename.split(".")[-1]
-
-    def on_modification_changed(self, value):
-        self.modificationStateChanged.emit(self)
+from ProjectFile import ProjectFile
 
 class ProjectModel(QtCore.QObject):
     
@@ -235,7 +34,7 @@ class ProjectModel(QtCore.QObject):
         
         # Used to watch the files for changes
         self.file_watcher = QtCore.QFileSystemWatcher()
-        self.file_watcher.fileChanged.connect(self.on_file_changed)
+        self.file_watcher.fileChanged.connect(self.on_project_directory_changed)
     
     def open(self, project_directory):
         "Tell the project model that we want to open a new/existing project."
@@ -244,11 +43,21 @@ class ProjectModel(QtCore.QObject):
         if self.closed:
             self.project_directory = project_directory
         
-            for filename in os.listdir(str(project_directory)):
-                if fnmatch.fnmatch(filename, '*.cpp') or fnmatch.fnmatch(filename, '*.h'):
-                    self.__open_file(filename)
+            self.refresh_open_files()
                     
             self.projectOpened.emit(True)
+            
+            self.file_watcher.addPath(project_directory)
+            
+    def refresh_open_files(self):
+        "Opens any unopened source files in the current project."
+        
+        already_open_filenames = self.filenames
+        
+        for filename in os.listdir(str(self.project_directory)):
+            if fnmatch.fnmatch(filename, '*.cpp') or fnmatch.fnmatch(filename, '*.h'):
+                if not os.path.join(self.project_directory, filename) in already_open_filenames:
+                    self.__open_file(filename)
         
     def new_project(self, project_directory):
         if os.path.exists(project_directory):
@@ -270,13 +79,12 @@ class ProjectModel(QtCore.QObject):
         "Helper function to open a file_editor for the current project."
         full_path = os.path.join(self.project_directory, filename)
         
-        file_editor = ProjectFile(self, filename, full_path)
+        file_editor = ProjectFile(filename, full_path)
         file_editor.modificationStateChanged.connect(self.on_file_modification_state_changed)
+        file_editor.removalConfirmed.connect(self.on_file_removal_confirmed)
         
         self.fileOpened.emit(file_editor)
         self.file_editors.append(file_editor)
-        
-        self.file_watcher.addPath(full_path)
         
     def __close_file(self, file_editor):
         "Helper function to close a file_editor for the current project."
@@ -286,8 +94,6 @@ class ProjectModel(QtCore.QObject):
         self.file_editors.remove(file_editor)
         file_editor.close()
         
-        self.file_watcher.removePath(file_editor.file_path)
-        
         self.fileClosed.emit(file_editor)
         file_editor.modificationStateChanged.disconnect(self.on_file_modification_state_changed)
         
@@ -295,36 +101,27 @@ class ProjectModel(QtCore.QObject):
         "Just re-emit the signal so that the view can handle it."
         self.fileModifiedStateChanged.emit(file_editor)
         
-    def on_file_changed(self, filename):
-        filename = str(filename)
-    
-        #print filename, self.saving_files
-        #print list(self.file_watcher.files())
-    
-        #if filename in self.saving_files:
-        #    self.saving_files.remove(filename)
-        #    return
-            
-        file_editor = None
-            
-        for fe in self.file_editors:
-            if fe.file_path == filename:
-                file_editor = fe
-                
-        if file_editor is None:
-            return
-            
-        if not file_editor.externally_modified():
-            return
-            
-        self.file_watcher.addPath(file_editor.file_path)
+    def on_file_removal_confirmed(self, file_editor):
+        self.__close_file(file_editor)
         
-        file_editor.setReadOnly(True)
-            
-        if os.path.isfile(file_editor.file_path):
-            file_editor.externally_modified_notification.show()
+    def on_project_directory_changed(self, directory):
+        directory = str(directory)
+        
+        if not os.path.isdir(directory):
+            self.force_close()
         else:
-            file_editor.externally_removed_notification.show()
+            for file_editor in self.file_editors:
+                if not file_editor.externally_modified():
+                    continue
+                
+                file_editor.setReadOnly(True)
+                    
+                if os.path.isfile(file_editor.file_path):
+                    file_editor.externally_modified_notification.show()
+                else:
+                    file_editor.externally_removed_notification.show()
+                    
+            self.refresh_open_files()
         
     def close(self):
         "Tell the project model that we want it to close."
@@ -345,8 +142,11 @@ class ProjectModel(QtCore.QObject):
         for file_editor in self.file_editors[:]:
             self.__close_file(file_editor)
             
-        self.project_directory = None
-        self.projectOpened.emit(False)
+        if self.project_directory is not None:
+            self.file_watcher.removePath(self.project_directory)
+            
+            self.project_directory = None
+            self.projectOpened.emit(False)
         
     def new(self, filename):
         "Tell the project model that we want a new file by a given name."
@@ -397,7 +197,11 @@ class ProjectModel(QtCore.QObject):
     def closed(self):
         return self.project_directory == None and len(self.file_editors) == 0
 
+    @property
     def filenames(self):
-        temp = [os.path.join(self.project_directory, f.filename) for f in self.file_editors if f.extension == "cpp"]
-        return temp
+        return [os.path.join(self.project_directory, f.filename) for f in self.file_editors]
+        
+    @property
+    def cpp_filenames(self):
+        return [os.path.join(self.project_directory, f.filename) for f in self.file_editors if f.extension == "cpp"]
 

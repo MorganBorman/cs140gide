@@ -239,7 +239,7 @@ class Controller(QtCore.QObject):
         
     def on_action_build(self):
         executable = os.path.join(self.project_model.project_directory, "a.out")
-        files = self.project_model.filenames()
+        files = self.project_model.cpp_filenames
         self.view_window.build_output.compile_project(files, executable)
         print "Controller: Build triggered. Files " + str(files)
         
