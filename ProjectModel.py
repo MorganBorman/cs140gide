@@ -34,7 +34,7 @@ class ProjectModel(QtCore.QObject):
         
         # Used to watch the files for changes
         self.file_watcher = QtCore.QFileSystemWatcher()
-        self.file_watcher.fileChanged.connect(self.on_project_directory_changed)
+        self.file_watcher.directoryChanged.connect(self.on_project_directory_changed)
     
     def open(self, project_directory):
         "Tell the project model that we want to open a new/existing project."
@@ -107,7 +107,7 @@ class ProjectModel(QtCore.QObject):
     def on_project_directory_changed(self, directory):
         directory = str(directory)
         
-        if not os.path.isdir(directory):
+        if not os.path.isdir(self.project_directory):
             self.force_close()
         else:
             for file_editor in self.file_editors:
